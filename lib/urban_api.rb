@@ -5,6 +5,15 @@ class UrbanAPI
   VERSION = "0.1.0"
 
   class Definition < Struct.new(:definition, :example)
+    def self.create(def_node, example_node)
+      new(extract_from(def_node), extract_from(example_node))
+    end
+
+    def self.extract_from(node)
+      if node
+        node.inner_html
+      end
+    end
   end
 
   class << self
@@ -27,15 +36,14 @@ class UrbanAPI
       req.params['term'] = word
       req.params['page'] = options[:page].to_i if options.key?(:page)
     end
-    definitions_from_html Nokogiri::HTML(resp.body)
+    definitions_from_html resp.body
   end
 
-  def definitions_from_html(doc)
+  def definitions_from_html(html)
     defs = []
-    (doc / "table#entries tr").each do |row|
+    (Nokogiri::HTML(html) / "table#entries tr").each do |row|
       if defn = (row / 'div.definition').first
-        ex = (row / 'div.example').first
-        defs << Definition.new(defn.inner_html, ex ? ex.inner_html : nil)
+        defs << Definition.create(defn, (row / 'div.example').first)
       end
     end
     defs
