@@ -2,7 +2,7 @@ require 'nokogiri'
 require 'faraday'
 
 class UrbanAPI
-  VERSION = "0.1.0"
+  VERSION = "0.2.0"
 
   class Definition < Struct.new(:definition, :example)
     def self.create(def_node, example_node)
